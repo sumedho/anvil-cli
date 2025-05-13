@@ -8,6 +8,8 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+
+	"github.com/pterm/pterm"
 )
 
 const ANVIL_CONFIG_DIR = ".anvil-cli"
@@ -58,4 +60,24 @@ func CreateConfigOrOpen() {
 	}
 	fmt.Println(config.UserName)
 	fmt.Println(config.BaseUrl)
+	if (config.UserName == "") || (config.BaseUrl == "") {
+		SetConfig()
+	}
+
+}
+
+func SetConfig() {
+	dirname, err := os.UserHomeDir()
+	if err != nil {
+		log.Fatal(err)
+	}
+	configpath := filepath.Join(dirname, ANVIL_CONFIG_DIR, "config.json")
+
+	userName, _ := pterm.DefaultInteractiveTextInput.Show("Username")
+	baseUrl, _ := pterm.DefaultInteractiveTextInput.Show("BaseUrl")
+	fmt.Println(userName)
+	fmt.Println(baseUrl)
+	config := Configuration{UserName: userName, BaseUrl: baseUrl}
+	utils.SaveJSONToFile(configpath, config, true)
+
 }
