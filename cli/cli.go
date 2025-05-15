@@ -2,7 +2,7 @@ package cli
 
 import (
 	"anvil-cli/api"
-	"fmt"
+	"anvil-cli/config"
 	"log"
 	"os"
 
@@ -18,16 +18,16 @@ func CLI() int {
 				Usage:   "login to Anvil",
 				Action: func(cCtx *cli.Context) error {
 					api.Login()
-					fmt.Println("added task: ", cCtx.Args().First())
+					// fmt.Println("added task: ", cCtx.Args().First())
 					return nil
 				},
 			},
 			{
-				Name: "config",
+				Name: "configure",
 				//Aliases: []string{"l"},
 				Usage: "set configuration",
 				Action: func(cCtx *cli.Context) error {
-					fmt.Println("configuration: ", cCtx.Args().First())
+					config.SetConfig()
 					return nil
 				},
 			},

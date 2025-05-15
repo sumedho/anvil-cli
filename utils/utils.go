@@ -3,8 +3,30 @@ package utils
 import (
 	"encoding/json"
 	"errors"
+	"log"
 	"os"
+	"path/filepath"
 )
+
+const ANVIL_CONFIG_DIR = ".anvil-cli"
+
+func GetAnvilConfigFilePath() string {
+	dirname, err := os.UserHomeDir()
+	if err != nil {
+		log.Fatal(err)
+	}
+	configpath := filepath.Join(dirname, ANVIL_CONFIG_DIR, "config.json")
+	return configpath
+}
+
+func GetAnvilDir() string {
+	dirname, err := os.UserHomeDir()
+	if err != nil {
+		log.Fatal(err)
+	}
+	configpath := filepath.Join(dirname, ANVIL_CONFIG_DIR)
+	return configpath
+}
 
 func MakeDir(dirName string) error {
 	err := os.Mkdir(dirName, 0777)

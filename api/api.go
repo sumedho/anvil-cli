@@ -2,9 +2,9 @@ package api
 
 import "fmt"
 
-func Login() {
-	fmt.Println("Login")
-}
+// func Login() {
+// 	fmt.Println("Login")
+// }
 
 func ObjectAttributes() {
 	// GET
