@@ -7,6 +7,7 @@ import (
 )
 
 func main() {
+	// fmt.Println(utils.GetHomeDir())
 	config.CreateConfigDir()
 	config.CreateConfigOrOpen()
 	os.Exit(cli.CLI())

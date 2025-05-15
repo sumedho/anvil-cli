@@ -47,10 +47,16 @@ func Login() {
 	if err != nil {
 		fmt.Println(err)
 	}
-	token := Token{}
-	json.Unmarshal(body, &token)
-	fmt.Println("Token")
-	fmt.Println(token.Token)
-	fmt.Println("Expiry")
-	fmt.Println(token.Expiry)
+
+	if resp.StatusCode != 200 {
+		fmt.Println("HTTP Response Status:", resp.StatusCode, resp.Status)
+	} else {
+		token := Token{}
+		json.Unmarshal(body, &token)
+		fmt.Println("Token")
+		fmt.Println(token.Token)
+		fmt.Println("Expiry")
+		fmt.Println(token.Expiry)
+	}
+
 }
