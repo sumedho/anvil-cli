@@ -2,6 +2,8 @@ package api
 
 import (
 	"anvil-cli/config"
+	"anvil-cli/schemas"
+	"anvil-cli/utils"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -12,22 +14,12 @@ import (
 	"github.com/pterm/pterm"
 )
 
-type Auth struct {
-	Username string `json:"username"`
-	Apikey   string `json:"apiKey"`
-}
-
-type Token struct {
-	Token  string `json:"token"`
-	Expiry string `json:"expiry"`
-}
-
 func Login() {
 	config := config.ReadConfig()
 	passwordInput := pterm.DefaultInteractiveTextInput.WithMask("*")
 	apiKey, _ := passwordInput.Show("Enter ApiKey")
 	fmt.Println(apiKey)
-	auth := Auth{Username: config.UserName, Apikey: apiKey}
+	auth := schemas.Auth{Username: config.UserName, Apikey: apiKey}
 
 	authJSON, err := json.Marshal(auth)
 	if err != nil {
@@ -51,12 +43,14 @@ func Login() {
 	if resp.StatusCode != 200 {
 		fmt.Println("HTTP Response Status:", resp.StatusCode, resp.Status)
 	} else {
-		token := Token{}
+		token := schemas.Token{}
 		json.Unmarshal(body, &token)
 		fmt.Println("Token")
 		fmt.Println(token.Token)
 		fmt.Println("Expiry")
 		fmt.Println(token.Expiry)
+		tokenpath := utils.GetTokenCacheFilePath()
+		utils.SaveJSONToFile(tokenpath, token, true)
 	}
 
 }

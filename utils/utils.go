@@ -1,8 +1,10 @@
 package utils
 
 import (
+	"anvil-cli/schemas"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
 	"os/user"
 	"path/filepath"
@@ -10,8 +12,9 @@ import (
 )
 
 const (
-	ConfigFileDir  = ".anvil-cli"
-	ConfigFileName = ".config.json"
+	ConfigFileDir      = ".anvil-cli"
+	ConfigFileName     = "config.json"
+	TokenCacheFileName = ".cache.json"
 )
 
 func getHomeDir() string {
@@ -36,6 +39,12 @@ func GetAnvilDir() string {
 	return configpath
 }
 
+func GetTokenCacheFilePath() string {
+	homedir := getHomeDir()
+	tokenpath := filepath.Join(homedir, ConfigFileDir, TokenCacheFileName)
+	return tokenpath
+}
+
 func MakeDir(dirName string) error {
 	err := os.Mkdir(dirName, 0777)
 	if err == nil {
@@ -53,6 +62,23 @@ func MakeDir(dirName string) error {
 		return nil
 	}
 	return err
+}
+
+func GetValidToken() schemas.Token {
+	cachepath := GetTokenCacheFilePath()
+	file, err := os.OpenFile(cachepath, os.O_RDWR|os.O_CREATE, 0666)
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer file.Close()
+
+	config := schemas.Token{}
+	decoder := json.NewDecoder(file)
+	err = decoder.Decode(&config)
+	if err != nil {
+		fmt.Println("Error decoding JSON:", err)
+	}
+	return config
 }
 
 func SaveJSONToFile(filePath string, data interface{}, indent bool) error {

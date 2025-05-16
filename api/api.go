@@ -26,10 +26,10 @@ func ObjectFiles() {
 	fmt.Println("Get object files")
 }
 
-func CatalogueSummary() {
-	// GET
-	fmt.Println("Catalogue summary")
-}
+// func CatalogueSummary() {
+// 	// GET
+// 	fmt.Println("Catalogue summary")
+// }
 
 func CatalogueQuery() {
 	// POST

@@ -1,6 +1,7 @@
 package config
 
 import (
+	"anvil-cli/schemas"
 	"anvil-cli/utils"
 	"encoding/json"
 	"errors"
@@ -10,19 +11,7 @@ import (
 	"github.com/pterm/pterm"
 )
 
-type Configuration struct {
-	UserName string `json:"Username"`
-	BaseUrl  string `json:"Baseurl"`
-}
-
 func CreateConfigDir() {
-	// // get home dir
-	// dirname, err := os.UserHomeDir()
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// // create anvil-cli dir in homedir
-	// newpath := filepath.Join(dirname, ANVIL_CONFIG_DIR)
 	newpath := utils.GetAnvilDir()
 	if err := utils.MakeDir(newpath); err != nil {
 		fmt.Println("Directory creation failed with error: " + err.Error())
@@ -36,7 +25,7 @@ func CreateConfigOrOpen() {
 	_, err := os.Stat(configpath)
 	if errors.Is(err, os.ErrNotExist) {
 		fmt.Println("no config, creating empty config.")
-		config := Configuration{UserName: "", BaseUrl: ""}
+		config := schemas.Configuration{UserName: "", BaseUrl: ""}
 		utils.SaveJSONToFile(configpath, config, true)
 	}
 
@@ -58,12 +47,12 @@ func SetConfig() {
 	configpath := utils.GetAnvilConfigFilePath()
 	userName, _ := pterm.DefaultInteractiveTextInput.Show("Username")
 	baseUrl, _ := pterm.DefaultInteractiveTextInput.Show("BaseUrl")
-	config := Configuration{UserName: userName, BaseUrl: baseUrl}
+	config := schemas.Configuration{UserName: userName, BaseUrl: baseUrl}
 	utils.SaveJSONToFile(configpath, config, true)
 	fmt.Println("configuration set")
 }
 
-func ReadConfig() Configuration {
+func ReadConfig() schemas.Configuration {
 	configpath := utils.GetAnvilConfigFilePath()
 	file, err := os.OpenFile(configpath, os.O_RDWR|os.O_CREATE, 0666)
 	if err != nil {
@@ -71,7 +60,7 @@ func ReadConfig() Configuration {
 	}
 	defer file.Close()
 
-	config := Configuration{}
+	config := schemas.Configuration{}
 	decoder := json.NewDecoder(file)
 	err = decoder.Decode(&config)
 	if err != nil {
