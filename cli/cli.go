@@ -47,10 +47,15 @@ func CLI() int {
 					},
 					{
 						Name:  "ls",
-						Usage: "remove an existing template",
+						Usage: "list catalogues",
+						Flags: []cli.Flag{
+							&cli.BoolFlag{
+								Name:  "json",
+								Usage: "JSON output to STDOUT",
+							},
+						},
 						Action: func(cCtx *cli.Context) error {
-							api.CatalogueSummary()
-							//fmt.Println("removed task template: ", cCtx.Args().First())
+							api.CatalogueSummary(cCtx.Bool("json"))
 							return nil
 						},
 					},

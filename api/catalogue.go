@@ -9,6 +9,8 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+
+	"github.com/pterm/pterm"
 )
 
 type OwnerSchema struct {
@@ -53,9 +55,8 @@ func jsonPrettyPrint(in string) string {
 	return out.String()
 }
 
-func CatalogueSummary() {
+func CatalogueSummary(outputJson bool) {
 	// GET
-	fmt.Println("Catalogue summary")
 	config := config.ReadConfig()
 
 	url, err := url.JoinPath(config.BaseUrl, "api/2.0/catalogueSummaries")
@@ -90,14 +91,18 @@ func CatalogueSummary() {
 	}
 
 	// fmt.Println(catalogs.TotalCount)
-	// alternateStyle := pterm.NewStyle(pterm.BgDarkGray)
-	// tableData := pterm.TableData{{"ID", "Name"}}
-	// for _, cata := range catalogs.CatalogueSummaries {
-	// 	data := []string{cata.Id, cata.Name}
-	// 	// fmt.Println(cata.Id, cata.Name)
-	// 	tableData = append(tableData, data)
-	// }
-	// pterm.DefaultTable.WithHasHeader().WithBoxed().WithData(tableData).WithAlternateRowStyle(alternateStyle).Render()
 
-	fmt.Println(jsonPrettyPrint(string(body)))
+	if outputJson {
+		fmt.Println(jsonPrettyPrint(string(body)))
+	} else {
+		alternateStyle := pterm.NewStyle(pterm.BgDarkGray)
+		tableData := pterm.TableData{{"ID", "Name", "Owner"}}
+		for _, cata := range catalogs.CatalogueSummaries {
+			data := []string{cata.Id, cata.Name, cata.Owner.Email}
+			// fmt.Println(cata.Id, cata.Name)
+			tableData = append(tableData, data)
+		}
+		pterm.DefaultTable.WithHasHeader().WithBoxed().WithData(tableData).WithAlternateRowStyle(alternateStyle).Render()
+	}
+
 }
