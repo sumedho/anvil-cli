@@ -5,12 +5,21 @@ import (
 	"anvil-cli/config"
 	"log"
 	"os"
+	"time"
 
 	"github.com/urfave/cli/v2"
 )
 
 func CLI() int {
 	app := &cli.App{
+		Name:     "anvil-cli - A cli app for managing Anvil",
+		Version:  "1.0",
+		Compiled: time.Now(),
+		Authors: []*cli.Author{
+			&cli.Author{Name: "John Doe", Email: "john.doe@gmail.com"},
+		},
+		Copyright: "(c) Serious Enterprise",
+		HelpName:  "anvil-cli",
 		Commands: []*cli.Command{
 			{
 				Name:    "login",
