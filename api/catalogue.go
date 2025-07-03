@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"strings"
 	"net/http"
 	"net/url"
 
@@ -55,7 +56,7 @@ func jsonPrettyPrint(in string) string {
 	return out.String()
 }
 
-func CatalogueSummary(outputJson bool) {
+func CatalogueSummary(outputJson bool, email string) {
 	// GET
 	config := config.ReadConfig()
 
@@ -98,11 +99,19 @@ func CatalogueSummary(outputJson bool) {
 		alternateStyle := pterm.NewStyle(pterm.BgDarkGray)
 		tableData := pterm.TableData{{"ID", "Name", "Owner"}}
 		for _, cata := range catalogs.CatalogueSummaries {
-			data := []string{cata.Id, cata.Name, cata.Owner.Email}
-			// fmt.Println(cata.Id, cata.Name)
-			tableData = append(tableData, data)
+			if len(email) > 0{
+				if strings.Contains(cata.Owner.Email, email){
+					data := []string{cata.Id, cata.Name, cata.Owner.Email}
+					// fmt.Println(cata.Id, cata.Name)
+					tableData = append(tableData, data)
+				}
+
+			} else {
+				data := []string{cata.Id, cata.Name, cata.Owner.Email}
+				// fmt.Println(cata.Id, cata.Name)
+				tableData = append(tableData, data)
+			}
 		}
 		pterm.DefaultTable.WithHasHeader().WithBoxed().WithData(tableData).WithAlternateRowStyle(alternateStyle).Render()
 	}
-
 }

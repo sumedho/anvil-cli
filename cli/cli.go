@@ -11,6 +11,7 @@ import (
 )
 
 func CLI() int {
+	var email string
 	app := &cli.App{
 		Name:     "anvil-cli - A cli app for managing Anvil",
 		Version:  "1.0",
@@ -62,9 +63,14 @@ func CLI() int {
 								Name:  "json",
 								Usage: "JSON output to STDOUT",
 							},
+							&cli.StringFlag{
+								Name: "email",
+								Usage: "Filter by user email",
+								Destination: &email,
+							},
 						},
 						Action: func(cCtx *cli.Context) error {
-							api.CatalogueSummary(cCtx.Bool("json"))
+							api.CatalogueSummary(cCtx.Bool("json"), email)
 							return nil
 						},
 					},
