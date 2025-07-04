@@ -14,12 +14,6 @@ var prefixesCli = cli.Command{
 		{
 			Name:  "ls",
 			Usage: "list prefixes",
-			Flags: []cli.Flag{
-				&cli.BoolFlag{
-					Name:  "json",
-					Usage: "JSON output to STDOUT",
-				},
-			},
 			Action: func(cCtx *cli.Context) error {
 				api.GetPrefixes(cCtx.Bool("json"))
 				return nil

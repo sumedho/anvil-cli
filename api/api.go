@@ -31,11 +31,6 @@ func ObjectFiles() {
 // 	fmt.Println("Catalogue summary")
 // }
 
-func CatalogueQuery() {
-	// POST
-	fmt.Println("Catalogue Query")
-}
-
 func CatalogueQueryAttributes() {
 	// GET
 	fmt.Println("Get catalogue attributes")

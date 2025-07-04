@@ -14,9 +14,14 @@ var catalogueCli = cli.Command{
 		{
 			Name:  "query",
 			Usage: "query the catalogue",
+			Flags: []cli.Flag{
+				&cli.IntFlag{
+					Name:  "limit",
+					Usage: "Number of returned objects",
+				},
+			},
 			Action: func(cCtx *cli.Context) error {
-				api.CatalogueQuery()
-				// fmt.Println("new task template: ", cCtx.Args().First())
+				api.CatalogueQuery(*cCtx)
 				return nil
 			},
 		},
@@ -24,18 +29,17 @@ var catalogueCli = cli.Command{
 			Name:  "ls",
 			Usage: "list catalogues",
 			Flags: []cli.Flag{
-				&cli.BoolFlag{
-					Name:  "json",
-					Usage: "JSON output to STDOUT",
+				&cli.StringFlag{
+					Name:  "email",
+					Usage: "Filter by user email",
 				},
 				&cli.StringFlag{
-					Name:        "email",
-					Usage:       "Filter by user email",
-					Destination: &email,
+					Name:  "name",
+					Usage: "Filter by catalogue name",
 				},
 			},
 			Action: func(cCtx *cli.Context) error {
-				api.CatalogueSummary(cCtx.Bool("json"), email)
+				api.CatalogueSummary(*cCtx)
 				return nil
 			},
 		},

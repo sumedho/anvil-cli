@@ -13,7 +13,13 @@ import (
 	"strings"
 
 	"github.com/pterm/pterm"
+	"github.com/urfave/cli/v2"
 )
+
+type Query struct {
+	OrderByAsc bool `json:"orderByAsc"`
+	Limit      int  `json:"limit"`
+}
 
 func jsonPrettyPrint(in string) string {
 	var out bytes.Buffer
@@ -24,8 +30,75 @@ func jsonPrettyPrint(in string) string {
 	return out.String()
 }
 
-func CatalogueSummary(outputJson bool, email string) {
-	// GET
+func CatalogueQuery(cCtx cli.Context) {
+	var catalogue_id string
+	outputJson := cCtx.Bool("json")
+	limit := cCtx.Int("limit")
+	fmt.Println(limit)
+
+	n := cCtx.NArg()
+	if n == 1 {
+		catalogue_id = cCtx.Args().Get(0)
+
+	} else {
+		fmt.Println("Must supply catalogue id")
+	}
+	config := config.ReadConfig()
+
+	url, err := url.JoinPath(config.BaseUrl, "api/2.0/catalogues", catalogue_id, "query")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	query := Query{OrderByAsc: true, Limit: limit}
+	data, _ := json.Marshal(query)
+
+	client := http.Client{}
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(data))
+	if err != nil {
+		fmt.Println("Request failed", err)
+	}
+
+	cache := utils.GetValidToken()
+	req.Header = http.Header{
+		"Content-Type":  {"application/json"},
+		"Authorization": {"Bearer " + cache.Token},
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Println(err)
+	}
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println(err)
+	}
+	var objects []schemas.CatalogueQueryObject
+	json.Unmarshal(body, &objects)
+	if err != nil {
+		fmt.Println("Error decoding JSON:", err)
+	}
+
+	if outputJson {
+		fmt.Println(jsonPrettyPrint(string(body)))
+	} else {
+		alternateStyle := pterm.NewStyle(pterm.BgDarkGray)
+		tableData := pterm.TableData{{"ID", "Name"}}
+		for _, obj := range objects {
+
+			data := []string{obj.Id, obj.Name}
+			tableData = append(tableData, data)
+		}
+		pterm.DefaultTable.WithHasHeader().WithBoxed().WithData(tableData).WithAlternateRowStyle(alternateStyle).Render()
+	}
+
+}
+
+func CatalogueSummary(cCtx cli.Context) {
+	email := cCtx.String("email")
+	name := cCtx.String("name")
+	outputJson := cCtx.Bool("json")
+
 	config := config.ReadConfig()
 
 	url, err := url.JoinPath(config.BaseUrl, "api/2.0/catalogueSummaries")
@@ -60,24 +133,44 @@ func CatalogueSummary(outputJson bool, email string) {
 	}
 
 	// fmt.Println(catalogs.TotalCount)
-
 	if outputJson {
 		fmt.Println(jsonPrettyPrint(string(body)))
 	} else {
 		alternateStyle := pterm.NewStyle(pterm.BgDarkGray)
 		tableData := pterm.TableData{{"ID", "Name", "Owner"}}
-		for _, cata := range catalogs.CatalogueSummaries {
-			if len(email) > 0 {
-				if strings.Contains(cata.Owner.Email, email) {
-					data := []string{cata.Id, cata.Name, cata.Owner.Email}
-					tableData = append(tableData, data)
-				}
+		catalogueSummary := catalogs.CatalogueSummaries
+		if len(email) > 0 {
+			catalogueSummary = filterEmail(email, catalogueSummary)
+		}
 
-			} else {
-				data := []string{cata.Id, cata.Name, cata.Owner.Email}
-				tableData = append(tableData, data)
-			}
+		if len(name) > 0 {
+			catalogueSummary = filterName(name, catalogueSummary)
+		}
+
+		for _, cata := range catalogueSummary {
+			data := []string{cata.Id, cata.Name, cata.Owner.Email}
+			tableData = append(tableData, data)
 		}
 		pterm.DefaultTable.WithHasHeader().WithBoxed().WithData(tableData).WithAlternateRowStyle(alternateStyle).Render()
 	}
+}
+
+func filterEmail(email string, data []schemas.CatalogueSchema) []schemas.CatalogueSchema {
+	var filteredData []schemas.CatalogueSchema
+	for _, cata := range data {
+		if strings.Contains(cata.Owner.Email, email) {
+			filteredData = append(filteredData, cata)
+		}
+	}
+	return filteredData
+}
+
+func filterName(name string, data []schemas.CatalogueSchema) []schemas.CatalogueSchema {
+	var filteredData []schemas.CatalogueSchema
+	for _, cata := range data {
+		if strings.Contains(cata.Name, name) {
+			filteredData = append(filteredData, cata)
+		}
+	}
+	return filteredData
 }

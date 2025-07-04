@@ -32,3 +32,20 @@ type CatalogueSummarySchema struct {
 	CatalogueSummaries []CatalogueSchema `json:"catalogueSummaries"`
 	TotalCount         int               `json:"totalCount"`
 }
+
+type CatalogueQueryObject struct {
+	Id                       string `json:"id"`
+	AnvilId                  string `json:"anvilId"`
+	Name                     string `json:"name"`
+	SeriesId                 string `json:"seriesId"`
+	CatalogueId              string `json:"catalogueId"`
+	State                    string `json:"state"`
+	ObjectClass              string `json:"objectClass"`
+	Description              string `json:"description"`
+	SizeBytes                string `json:"sizeBytes"`
+	ApprovalState            string `json:"approvalState"`
+	AttributeValues          string `json:"attributeValues"`
+	CreatedBy                string `json:"createdBy"`
+	DateCreated              string `json:"dateCreated"`
+	LegacyPipelineNotYetInS3 string `json:"legacyPipelineNotYetInS3"`
+}

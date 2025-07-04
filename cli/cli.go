@@ -9,8 +9,6 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-var email string
-
 func CLI() int {
 
 	app := &cli.App{
@@ -22,7 +20,14 @@ func CLI() int {
 		},
 		Copyright: "(c) Serious Enterprise",
 		HelpName:  "anvil-cli",
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:  "json",
+				Usage: "JSON output to STDOUT",
+			},
+		},
 		Commands: []*cli.Command{
+
 			&loginCli,
 			&configureCli,
 			&catalogueCli,
