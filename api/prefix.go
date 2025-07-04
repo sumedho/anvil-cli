@@ -4,31 +4,20 @@ import (
 	"anvil-cli/config"
 	"anvil-cli/schemas"
 	"anvil-cli/utils"
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
-	"strings"
 
 	"github.com/pterm/pterm"
 )
 
-func jsonPrettyPrint(in string) string {
-	var out bytes.Buffer
-	err := json.Indent(&out, []byte(in), "", "\t")
-	if err != nil {
-		return in
-	}
-	return out.String()
-}
-
-func CatalogueSummary(outputJson bool, email string) {
+func GetPrefixes(outputJson bool) {
 	// GET
 	config := config.ReadConfig()
 
-	url, err := url.JoinPath(config.BaseUrl, "api/2.0/catalogueSummaries")
+	url, err := url.JoinPath(config.BaseUrl, "api/2.0/cataloguePrefixes")
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -53,30 +42,19 @@ func CatalogueSummary(outputJson bool, email string) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	catalogs := schemas.CatalogueSummarySchema{}
-	json.Unmarshal(body, &catalogs)
+	prefixes := schemas.PrefixSchema{}
+	json.Unmarshal(body, &prefixes)
 	if err != nil {
 		fmt.Println("Error decoding JSON:", err)
 	}
-
-	// fmt.Println(catalogs.TotalCount)
-
 	if outputJson {
 		fmt.Println(jsonPrettyPrint(string(body)))
 	} else {
 		alternateStyle := pterm.NewStyle(pterm.BgDarkGray)
-		tableData := pterm.TableData{{"ID", "Name", "Owner"}}
-		for _, cata := range catalogs.CatalogueSummaries {
-			if len(email) > 0 {
-				if strings.Contains(cata.Owner.Email, email) {
-					data := []string{cata.Id, cata.Name, cata.Owner.Email}
-					tableData = append(tableData, data)
-				}
-
-			} else {
-				data := []string{cata.Id, cata.Name, cata.Owner.Email}
-				tableData = append(tableData, data)
-			}
+		tableData := pterm.TableData{{"PrefixName", "Label", "Description", "CreatedBy"}}
+		for _, prefix := range prefixes.CataloguePrefixes {
+			data := []string{prefix.Prefix, prefix.Label, prefix.Description, prefix.CreatedBy}
+			tableData = append(tableData, data)
 		}
 		pterm.DefaultTable.WithHasHeader().WithBoxed().WithData(tableData).WithAlternateRowStyle(alternateStyle).Render()
 	}
