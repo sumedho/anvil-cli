@@ -2,50 +2,18 @@ package api
 
 import (
 	"anvil-cli/config"
+	"anvil-cli/schemas"
 	"anvil-cli/utils"
 	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
-	"strings"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/pterm/pterm"
 )
-
-type OwnerSchema struct {
-	Id        string `json:"id"`
-	UserName  string `json:"username"`
-	Email     string `json:"email"`
-	GivenName string `json:"givenName"`
-	LastName  string `json:"lastName"`
-}
-
-type CatalogueSchema struct {
-	Id                                 string      `json:"id"`
-	Name                               string      `json:"name"`
-	Description                        string      `json:"description"`
-	Version                            int         `json:"version"`
-	IsOfficial                         bool        `json:"isOfficial"`
-	IsDraft                            bool        `json:"isDraft"`
-	Owner                              OwnerSchema `json:"owner"`
-	OwnerUserName                      string      `json:"ownerUsername"`
-	CreatedBy                          string      `json:"createdBy"`
-	DateCreated                        string      `json:"dateCreated"`
-	Prefix                             string      `json:"prefix"`
-	CustomSeriesNaming                 string      `json:"customSeriesNaming"`
-	CustomObjectNaming                 string      `json:"customObjectNaming"`
-	ApprovalProcessProcessFLowSeriesId string      `json:"approvalProcessProcessFlowSeriesId"`
-	ObjectClasses                      []string    `json:"objectClasses"`
-}
-
-type CatalogueSummarySchema struct {
-	Limit              int               `json:"limit"`
-	Offset             int               `json:"offset"`
-	CatalogueSummaries []CatalogueSchema `json:"catalogueSummaries"`
-	TotalCount         int               `json:"totalCount"`
-}
 
 func jsonPrettyPrint(in string) string {
 	var out bytes.Buffer
@@ -85,7 +53,7 @@ func CatalogueSummary(outputJson bool, email string) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	catalogs := CatalogueSummarySchema{}
+	catalogs := schemas.CatalogueSummarySchema{}
 	json.Unmarshal(body, &catalogs)
 	if err != nil {
 		fmt.Println("Error decoding JSON:", err)
@@ -99,8 +67,8 @@ func CatalogueSummary(outputJson bool, email string) {
 		alternateStyle := pterm.NewStyle(pterm.BgDarkGray)
 		tableData := pterm.TableData{{"ID", "Name", "Owner"}}
 		for _, cata := range catalogs.CatalogueSummaries {
-			if len(email) > 0{
-				if strings.Contains(cata.Owner.Email, email){
+			if len(email) > 0 {
+				if strings.Contains(cata.Owner.Email, email) {
 					data := []string{cata.Id, cata.Name, cata.Owner.Email}
 					// fmt.Println(cata.Id, cata.Name)
 					tableData = append(tableData, data)
