@@ -11,6 +11,7 @@ import (
 	"github.com/pterm/pterm"
 )
 
+// Create the directory to store the configuration
 func CreateConfigDir() {
 	newpath := utils.GetAnvilDir()
 	if err := utils.MakeDir(newpath); err != nil {
@@ -19,13 +20,15 @@ func CreateConfigDir() {
 	}
 }
 
+// Create configuration file
 func CreateConfigOrOpen() {
 
 	configpath := utils.GetAnvilConfigFilePath()
 	_, err := os.Stat(configpath)
 	if errors.Is(err, os.ErrNotExist) {
 		fmt.Println("no config, creating empty config.")
-		config := schemas.Configuration{UserName: "", BaseUrl: ""}
+		bookmarks := make([]schemas.Bookmark, 0)
+		config := schemas.Configuration{UserName: "", BaseUrl: "", Bookmarks: bookmarks}
 		utils.SaveJSONToFile(configpath, config, true)
 	}
 
@@ -43,6 +46,7 @@ func CreateConfigOrOpen() {
 	// }
 }
 
+// Set the configuration
 func SetConfig() {
 	configpath := utils.GetAnvilConfigFilePath()
 	userName, _ := pterm.DefaultInteractiveTextInput.Show("Username")
@@ -52,6 +56,7 @@ func SetConfig() {
 	fmt.Println("configuration set")
 }
 
+// Read config from disk
 func ReadConfig() schemas.Configuration {
 	configpath := utils.GetAnvilConfigFilePath()
 	file, err := os.OpenFile(configpath, os.O_RDWR|os.O_CREATE, 0666)

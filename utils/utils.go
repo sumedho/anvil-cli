@@ -17,6 +17,7 @@ const (
 	TokenCacheFileName = ".cache.json"
 )
 
+// Return platform independant HOME path
 func getHomeDir() string {
 	home, _ := os.UserHomeDir()
 	if home == "" && runtime.GOOS != "windows" {
@@ -27,24 +28,28 @@ func getHomeDir() string {
 	return home
 }
 
+// Return the configuration file path
 func GetAnvilConfigFilePath() string {
 	homedir := getHomeDir()
 	configpath := filepath.Join(homedir, ConfigFileDir, ConfigFileName)
 	return configpath
 }
 
+// Return the configuration directory
 func GetAnvilDir() string {
 	homedir := getHomeDir()
 	configpath := filepath.Join(homedir, ConfigFileDir)
 	return configpath
 }
 
+// Get the token cache file path
 func GetTokenCacheFilePath() string {
 	homedir := getHomeDir()
 	tokenpath := filepath.Join(homedir, ConfigFileDir, TokenCacheFileName)
 	return tokenpath
 }
 
+// Create a new directory
 func MakeDir(dirName string) error {
 	err := os.Mkdir(dirName, 0777)
 	if err == nil {
@@ -64,6 +69,7 @@ func MakeDir(dirName string) error {
 	return err
 }
 
+// Get the valid token
 func GetValidToken() schemas.Token {
 	cachepath := GetTokenCacheFilePath()
 	file, err := os.OpenFile(cachepath, os.O_RDWR|os.O_CREATE, 0666)
@@ -81,6 +87,7 @@ func GetValidToken() schemas.Token {
 	return config
 }
 
+// Save a JSON file to disk
 func SaveJSONToFile(filePath string, data interface{}, indent bool) error {
 	// Marshal the data into JSON format.
 	file, err := os.Create(filePath)
