@@ -21,30 +21,13 @@ type Query struct {
 	Limit      int  `json:"limit"`
 }
 
-func jsonPrettyPrint(in string) string {
-	var out bytes.Buffer
-	err := json.Indent(&out, []byte(in), "", "\t")
-	if err != nil {
-		return in
-	}
-	return out.String()
-}
-
+// Query a single catalogue
 func CatalogueQuery(cCtx cli.Context) {
-	var catalogue_id string
 	outputJson := cCtx.Bool("json")
 	limit := cCtx.Int("limit")
-	fmt.Println(limit)
+	catalogue_id := cCtx.String("id")
 
-	n := cCtx.NArg()
-	if n == 1 {
-		catalogue_id = cCtx.Args().Get(0)
-
-	} else {
-		fmt.Println("Must supply catalogue id")
-	}
 	config := config.ReadConfig()
-
 	url, err := url.JoinPath(config.BaseUrl, "api/2.0/catalogues", catalogue_id, "query")
 	if err != nil {
 		fmt.Println(err)
@@ -80,7 +63,7 @@ func CatalogueQuery(cCtx cli.Context) {
 	}
 
 	if outputJson {
-		fmt.Println(jsonPrettyPrint(string(body)))
+		fmt.Println(utils.JsonPrettyPrint(string(body)))
 	} else {
 		alternateStyle := pterm.NewStyle(pterm.BgDarkGray)
 		tableData := pterm.TableData{{"ID", "Name"}}
@@ -91,9 +74,9 @@ func CatalogueQuery(cCtx cli.Context) {
 		}
 		pterm.DefaultTable.WithHasHeader().WithBoxed().WithData(tableData).WithAlternateRowStyle(alternateStyle).Render()
 	}
-
 }
 
+// Get summary of all catalogues
 func CatalogueSummary(cCtx cli.Context) {
 	email := cCtx.String("email")
 	name := cCtx.String("name")
@@ -134,7 +117,7 @@ func CatalogueSummary(cCtx cli.Context) {
 
 	// fmt.Println(catalogs.TotalCount)
 	if outputJson {
-		fmt.Println(jsonPrettyPrint(string(body)))
+		fmt.Println(utils.JsonPrettyPrint(string(body)))
 	} else {
 		alternateStyle := pterm.NewStyle(pterm.BgDarkGray)
 		tableData := pterm.TableData{{"ID", "Name", "Owner"}}
@@ -155,6 +138,7 @@ func CatalogueSummary(cCtx cli.Context) {
 	}
 }
 
+// Filter slice by partial email string
 func filterEmail(email string, data []schemas.CatalogueSchema) []schemas.CatalogueSchema {
 	var filteredData []schemas.CatalogueSchema
 	for _, cata := range data {
@@ -165,6 +149,7 @@ func filterEmail(email string, data []schemas.CatalogueSchema) []schemas.Catalog
 	return filteredData
 }
 
+// Filter slice by partial catalogue name
 func filterName(name string, data []schemas.CatalogueSchema) []schemas.CatalogueSchema {
 	var filteredData []schemas.CatalogueSchema
 	for _, cata := range data {

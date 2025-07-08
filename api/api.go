@@ -1,6 +1,10 @@
 package api
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/urfave/cli/v2"
+)
 
 // func Login() {
 // 	fmt.Println("Login")
@@ -49,4 +53,9 @@ func CataloguePrefixPost() {
 func MagmaActive() {
 	// GET
 	fmt.Println("Current active Magma sessions")
+}
+
+func ListWorkflowSchedules(cCtx cli.Context) {
+	catalogue_id := cCtx.String("id")
+	fmt.Println("Workflow schedules", catalogue_id)
 }

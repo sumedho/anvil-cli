@@ -19,6 +19,11 @@ var catalogueCli = cli.Command{
 					Name:  "limit",
 					Usage: "Number of returned objects",
 				},
+				&cli.StringFlag{
+					Name:     "id",
+					Usage:    "Catalogue id",
+					Required: true,
+				},
 			},
 			Action: func(cCtx *cli.Context) error {
 				api.CatalogueQuery(*cCtx)

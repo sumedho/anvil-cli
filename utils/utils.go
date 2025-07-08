@@ -2,6 +2,7 @@ package utils
 
 import (
 	"anvil-cli/schemas"
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -104,4 +105,14 @@ func SaveJSONToFile(filePath string, data interface{}, indent bool) error {
 		panic(err)
 	}
 	return nil
+}
+
+// Pretty print json
+func JsonPrettyPrint(in string) string {
+	var out bytes.Buffer
+	err := json.Indent(&out, []byte(in), "", "\t")
+	if err != nil {
+		return in
+	}
+	return out.String()
 }

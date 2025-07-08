@@ -48,7 +48,7 @@ func GetPrefixes(outputJson bool) {
 		fmt.Println("Error decoding JSON:", err)
 	}
 	if outputJson {
-		fmt.Println(jsonPrettyPrint(string(body)))
+		fmt.Println(utils.JsonPrettyPrint(string(body)))
 	} else {
 		alternateStyle := pterm.NewStyle(pterm.BgDarkGray)
 		tableData := pterm.TableData{{"PrefixName", "Label", "Description", "CreatedBy"}}

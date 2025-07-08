@@ -15,14 +15,13 @@ import (
 func CreateConfigDir() {
 	newpath := utils.GetAnvilDir()
 	if err := utils.MakeDir(newpath); err != nil {
-		fmt.Println("Directory creation failed with error: " + err.Error())
+		fmt.Println("Unable to create configuration directory: " + err.Error())
 		os.Exit(1)
 	}
 }
 
 // Create configuration file
 func CreateConfigOrOpen() {
-
 	configpath := utils.GetAnvilConfigFilePath()
 	_, err := os.Stat(configpath)
 	if errors.Is(err, os.ErrNotExist) {
@@ -31,19 +30,6 @@ func CreateConfigOrOpen() {
 		config := schemas.Configuration{UserName: "", BaseUrl: "", Bookmarks: bookmarks}
 		utils.SaveJSONToFile(configpath, config, true)
 	}
-
-	// file, err := os.OpenFile(configpath, os.O_RDWR|os.O_CREATE, 0666)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
-	// defer file.Close()
-
-	// config := Configuration{}
-	// decoder := json.NewDecoder(file)
-	// err = decoder.Decode(&config)
-	// if err != nil {
-	// 	fmt.Println("Error decoding JSON:", err)
-	// }
 }
 
 // Set the configuration
@@ -51,7 +37,9 @@ func SetConfig() {
 	configpath := utils.GetAnvilConfigFilePath()
 	userName, _ := pterm.DefaultInteractiveTextInput.Show("Username")
 	baseUrl, _ := pterm.DefaultInteractiveTextInput.Show("BaseUrl")
-	config := schemas.Configuration{UserName: userName, BaseUrl: baseUrl}
+	config := ReadConfig()
+	config.UserName = userName
+	config.BaseUrl = baseUrl
 	utils.SaveJSONToFile(configpath, config, true)
 	fmt.Println("configuration set")
 }
