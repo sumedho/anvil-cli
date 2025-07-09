@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/pterm/pterm"
 	"github.com/urfave/cli/v2"
@@ -36,7 +37,7 @@ func CatalogueQuery(cCtx cli.Context) {
 	query := Query{OrderByAsc: true, Limit: limit}
 	data, _ := json.Marshal(query)
 
-	client := http.Client{}
+	client := http.Client{Timeout: 10 * time.Second}
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(data))
 	if err != nil {
 		fmt.Println("Request failed", err)
@@ -89,7 +90,7 @@ func CatalogueSummary(cCtx cli.Context) {
 		fmt.Println(err)
 	}
 
-	client := http.Client{}
+	client := http.Client{Timeout: 10 * time.Second}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		fmt.Println("Request failed", err)

@@ -10,6 +10,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/pterm/pterm"
 )
@@ -18,7 +19,6 @@ func Login() {
 	config := config.ReadConfig()
 	passwordInput := pterm.DefaultInteractiveTextInput.WithMask("*")
 	apiKey, _ := passwordInput.Show("Enter ApiKey")
-	fmt.Println(apiKey)
 	auth := schemas.Auth{Username: config.UserName, Apikey: apiKey}
 
 	authJSON, err := json.Marshal(auth)
@@ -30,11 +30,21 @@ func Login() {
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println(url)
-	resp, err := http.Post(url, "application/json", bytes.NewBuffer(authJSON))
+
+	client := http.Client{Timeout: 10 * time.Second}
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(authJSON))
+	if err != nil {
+		fmt.Println("Request failed", err)
+	}
+	req.Header = http.Header{
+		"Content-Type": {"application/json"},
+	}
+
+	resp, err := client.Do(req)
 	if err != nil {
 		fmt.Println(err)
 	}
+
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Println(err)
