@@ -7,6 +7,10 @@ import (
 )
 
 func main() {
+	// now := time.Now()
+	// fmt.Println(now.UTC().Format(time.RFC3339))
+	// then := now.Add(-24 * 365 * time.Hour)
+	// fmt.Println(then.UTC().Format(time.RFC3339))
 	config.CreateConfigDir()
 	config.CreateConfigOrOpen()
 	os.Exit(cli.CLI())

@@ -1,5 +1,11 @@
 package schemas
 
+type WorkflowSchedules struct {
+	TotalCount        int                      `json:"totalCount"`
+	HasEditPermission bool                     `json:"hasEditPermission"`
+	WorkflowSchedules []WorkflowScheduleSchema `json:"workflowSchedules"`
+}
+
 type WorkflowScheduleSchema struct {
 	Id                    string             `json:"id"`
 	HasEditPermission     bool               `json:"hasEditPermission"`
@@ -22,7 +28,7 @@ type WorkflowScheduleSchema struct {
 	DoNotAllocateAfter    string             `json:"doNotAllocateAfter"`
 	ExcludedIntervals     string             `json:"excludedIntervals"`
 	AllowConcurrentJobs   string             `json:"allowConcurrentJobs"`
-	JobTimeoutMinutes     string             `json:"jobTimeoutMinutes"`
+	JobTimeoutMinutes     int                `json:"jobTimeoutMinutes"`
 	ParametersYaml        string             `json:"parametersYaml"`
 	ImportParameters      string             `json:"importParameters"`
 	OccurrencesStatistics string             `json:"occurrencesStatistics"`
@@ -65,4 +71,31 @@ type WorkflowStatsEntrySchema struct {
 	FailedCount   int `json:"failedCount"`
 	SuceededCount int `json:"suceededCount"`
 	SkippedCount  int `json:"skippedCount"`
+}
+
+type WorkflowScheduleOccurrencesSchema struct {
+	Occurrences []WorkflowOccurrenceSchema `json:"occurrences"`
+	TotalCount  int                        `json:"TotalCount"`
+}
+
+type WorkflowOccurrenceSchema struct {
+	WorkflowScheduleOccurrenceId string `json:"workflowScheduleOccurrenceId"`
+	WorkflowSessionId            string `json:"workflowSessionId"`
+	ScheduledTime                string `json:"scheduledTime"`
+	Status                       string `json:"status"`
+	Duration                     string `json:"duration"`
+	ManualRunByUsername          string `json:"manualRunByUsername"`
+	Messages                     string `json:"messages"`
+}
+
+type WorkflowQuerySchema struct {
+	ScheduleTimeFilter WorkflowQueryTimeFilter `json:"ScheduleTimeFilter"`
+	// OrderBy            string                  `json:"orderBy"`
+	Skip  int `json:"skip"`
+	Limit int `json:"limit"`
+}
+
+type WorkflowQueryTimeFilter struct {
+	StartDate string `json:"startDate"`
+	EndDate   string `json:"endDate"`
 }
