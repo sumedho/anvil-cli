@@ -11,21 +11,6 @@ var workflowCli = cli.Command{
 	Usage: "Workflow operations",
 	Subcommands: []*cli.Command{
 		{
-			Name:  "schedules",
-			Usage: "list the scheduled workflows",
-			Flags: []cli.Flag{
-				&cli.StringFlag{
-					Name:     "id",
-					Usage:    "Catalogue id",
-					Required: true,
-				},
-			},
-			Action: func(cCtx *cli.Context) error {
-				api.ListCatalogueWorkflowSchedules(*cCtx)
-				return nil
-			},
-		},
-		{
 			Name:  "ls",
 			Usage: "list the scheduled workflows",
 			Flags: []cli.Flag{
@@ -35,13 +20,12 @@ var workflowCli = cli.Command{
 					Required: true,
 				},
 				&cli.StringFlag{
-					Name:     "schedule-id",
-					Usage:    "The schedule id",
-					Required: true,
+					Name:  "schedule-id",
+					Usage: "The schedule id",
 				},
 			},
 			Action: func(cCtx *cli.Context) error {
-				api.ListWorkflowOccurenceschedules(*cCtx)
+				api.WorkflowHandler(*cCtx)
 				return nil
 			},
 		},

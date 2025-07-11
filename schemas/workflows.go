@@ -89,7 +89,7 @@ type WorkflowOccurrenceSchema struct {
 }
 
 type WorkflowQuerySchema struct {
-	ScheduleTimeFilter WorkflowQueryTimeFilter `json:"ScheduleTimeFilter"`
+	ScheduledTimeFilter WorkflowQueryTimeFilter `json:"scheduledTimeFilter"`
 	// OrderBy            string                  `json:"orderBy"`
 	Skip  int `json:"skip"`
 	Limit int `json:"limit"`

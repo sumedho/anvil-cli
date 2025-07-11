@@ -6,10 +6,16 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"log"
+	"net/http"
 	"os"
 	"os/user"
 	"path/filepath"
 	"runtime"
+	"strconv"
+	"strings"
+	"time"
 )
 
 const (
@@ -115,4 +121,76 @@ func JsonPrettyPrint(in string) string {
 		return in
 	}
 	return out.String()
+}
+
+// Parse an elapsed time for workflow schedules
+func ParseMinutesTimeString(timetaken string) float64 {
+	parts := strings.Split(timetaken, ":")
+	minutes, err := strconv.ParseFloat(parts[0], 3)
+	if err != nil {
+		log.Fatal("Parse of minutes failed:", err)
+	}
+	seconds, err := strconv.ParseFloat(parts[1], 3)
+	if err != nil {
+		log.Fatal("Parse of seconds failed:", err)
+	}
+	return minutes + seconds
+}
+
+// GET
+func GETRequest(url_path string) []byte {
+	client := http.Client{Timeout: 10 * time.Second}
+	req, err := http.NewRequest("GET", url_path, nil)
+	if err != nil {
+		log.Fatal("Request failed", err)
+	}
+	cache := GetValidToken()
+	req.Header = http.Header{
+		"Content-Type":  {"application/json"},
+		"Authorization": {"Bearer " + cache.Token},
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		log.Fatalf("status code error: %d %s", resp.StatusCode, resp.Status)
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return body
+}
+
+// POST
+func POSTRequest(url_path string, json_data []byte) []byte {
+	client := http.Client{Timeout: 10 * time.Second}
+	req, err := http.NewRequest("POST", url_path, bytes.NewBuffer(json_data))
+	if err != nil {
+		log.Fatal("Request failed", err)
+	}
+	cache := GetValidToken()
+	req.Header = http.Header{
+		"Content-Type":  {"application/json"},
+		"Authorization": {"Bearer " + cache.Token},
+	}
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		log.Fatalf("status code error: %d %s", resp.StatusCode, resp.Status)
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println(err)
+	}
+	return body
 }

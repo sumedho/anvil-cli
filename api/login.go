@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"time"
@@ -44,23 +45,23 @@ func Login() {
 	if err != nil {
 		fmt.Println(err)
 	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		log.Fatalf("status code error: %d %s", resp.StatusCode, resp.Status)
+	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	if resp.StatusCode != 200 {
-		fmt.Println("HTTP Response Status:", resp.StatusCode, resp.Status)
-	} else {
-		token := schemas.Token{}
-		json.Unmarshal(body, &token)
-		fmt.Println("Token")
-		fmt.Println(token.Token)
-		fmt.Println("Expiry")
-		fmt.Println(token.Expiry)
-		tokenpath := utils.GetTokenCacheFilePath()
-		utils.SaveJSONToFile(tokenpath, token, true)
-	}
-
+	token := schemas.Token{}
+	json.Unmarshal(body, &token)
+	fmt.Println("Token")
+	fmt.Println(token.Token)
+	fmt.Println("Expiry")
+	fmt.Println(token.Expiry)
+	tokenpath := utils.GetTokenCacheFilePath()
+	utils.SaveJSONToFile(tokenpath, token, true)
 }

@@ -4,14 +4,10 @@ import (
 	"anvil-cli/config"
 	"anvil-cli/schemas"
 	"anvil-cli/utils"
-	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
 	"net/url"
 	"strings"
-	"time"
 
 	"github.com/pterm/pterm"
 	"github.com/urfave/cli/v2"
@@ -37,26 +33,8 @@ func CatalogueQuery(cCtx cli.Context) {
 	query := Query{OrderByAsc: true, Limit: limit}
 	data, _ := json.Marshal(query)
 
-	client := http.Client{Timeout: 10 * time.Second}
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(data))
-	if err != nil {
-		fmt.Println("Request failed", err)
-	}
+	body := utils.POSTRequest(url, data)
 
-	cache := utils.GetValidToken()
-	req.Header = http.Header{
-		"Content-Type":  {"application/json"},
-		"Authorization": {"Bearer " + cache.Token},
-	}
-
-	resp, err := client.Do(req)
-	if err != nil {
-		fmt.Println(err)
-	}
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		fmt.Println(err)
-	}
 	var objects []schemas.CatalogueQueryObject
 	json.Unmarshal(body, &objects)
 	if err != nil {
@@ -90,26 +68,8 @@ func CatalogueSummary(cCtx cli.Context) {
 		fmt.Println(err)
 	}
 
-	client := http.Client{Timeout: 10 * time.Second}
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		fmt.Println("Request failed", err)
-	}
+	body := utils.GETRequest(url)
 
-	cache := utils.GetValidToken()
-	req.Header = http.Header{
-		"Content-Type":  {"application/json"},
-		"Authorization": {"Bearer " + cache.Token},
-	}
-
-	resp, err := client.Do(req)
-	if err != nil {
-		fmt.Println(err)
-	}
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		fmt.Println(err)
-	}
 	catalogs := schemas.CatalogueSummarySchema{}
 	json.Unmarshal(body, &catalogs)
 	if err != nil {

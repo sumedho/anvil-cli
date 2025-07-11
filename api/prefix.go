@@ -6,8 +6,6 @@ import (
 	"anvil-cli/utils"
 	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
 	"net/url"
 
 	"github.com/pterm/pterm"
@@ -21,27 +19,8 @@ func GetPrefixes(outputJson bool) {
 	if err != nil {
 		fmt.Println(err)
 	}
+	body := utils.GETRequest(url)
 
-	client := http.Client{}
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		fmt.Println("Request failed", err)
-	}
-
-	cache := utils.GetValidToken()
-	req.Header = http.Header{
-		"Content-Type":  {"application/json"},
-		"Authorization": {"Bearer " + cache.Token},
-	}
-
-	resp, err := client.Do(req)
-	if err != nil {
-		fmt.Println(err)
-	}
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		fmt.Println(err)
-	}
 	prefixes := schemas.PrefixSchema{}
 	json.Unmarshal(body, &prefixes)
 	if err != nil {

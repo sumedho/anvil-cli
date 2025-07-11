@@ -4,11 +4,8 @@ import (
 	"anvil-cli/config"
 	"anvil-cli/schemas"
 	"anvil-cli/utils"
-	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
 	"net/url"
 	"strconv"
 	"time"
@@ -16,6 +13,15 @@ import (
 	"github.com/pterm/pterm"
 	"github.com/urfave/cli/v2"
 )
+
+func WorkflowHandler(cCtx cli.Context) {
+	schedule_id := cCtx.String("schedule-id")
+	if len(schedule_id) > 0 {
+		ListWorkflowOccurenceschedules(cCtx)
+	} else {
+		ListCatalogueWorkflowSchedules(cCtx)
+	}
+}
 
 func ListCatalogueWorkflowSchedules(cCtx cli.Context) {
 	outputJson := cCtx.Bool("json")
@@ -26,26 +32,8 @@ func ListCatalogueWorkflowSchedules(cCtx cli.Context) {
 		fmt.Println(err)
 	}
 
-	client := http.Client{Timeout: 10 * time.Second}
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		fmt.Println("Request failed", err)
-	}
+	body := utils.GETRequest(url)
 
-	cache := utils.GetValidToken()
-	req.Header = http.Header{
-		"Content-Type":  {"application/json"},
-		"Authorization": {"Bearer " + cache.Token},
-	}
-
-	resp, err := client.Do(req)
-	if err != nil {
-		fmt.Println(err)
-	}
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		fmt.Println(err)
-	}
 	var objects schemas.WorkflowSchedules
 	json.Unmarshal(body, &objects)
 	if err != nil {
@@ -66,7 +54,7 @@ func ListCatalogueWorkflowSchedules(cCtx cli.Context) {
 }
 
 func ListWorkflowOccurenceschedules(cCtx cli.Context) {
-	// outputJson := cCtx.Bool("json")
+	outputJson := cCtx.Bool("json")
 	catalogue_id := cCtx.String("id")
 	schedule_id := cCtx.String("schedule-id")
 	config := config.ReadConfig()
@@ -75,38 +63,30 @@ func ListWorkflowOccurenceschedules(cCtx cli.Context) {
 		fmt.Println(err)
 	}
 
+	// get the current time and back 1 year
 	now := time.Now().UTC()
-	// subtract one year
 	then := now.Add(-24 * 365 * time.Hour).UTC()
 	time_filter := schemas.WorkflowQueryTimeFilter{StartDate: then.Format(time.RFC3339), EndDate: now.Format(time.RFC3339)}
 
-	query := schemas.WorkflowQuerySchema{ScheduleTimeFilter: time_filter, Skip: 0, Limit: 0}
+	query := schemas.WorkflowQuerySchema{ScheduledTimeFilter: time_filter, Skip: 0, Limit: 0}
 
 	settings, err := json.Marshal(query)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	client := http.Client{Timeout: 10 * time.Second}
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(settings))
-	if err != nil {
-		fmt.Println("Request failed", err)
-	}
-	cache := utils.GetValidToken()
-	req.Header = http.Header{
-		"Content-Type":  {"application/json"},
-		"Authorization": {"Bearer " + cache.Token},
-	}
-
-	resp, err := client.Do(req)
-	if err != nil {
-		fmt.Println(err)
-	}
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		fmt.Println(err)
-	}
-	var objects []schemas.WorkflowOccurrenceSchema
+	body := utils.POSTRequest(url, settings)
+	var objects schemas.WorkflowScheduleOccurrencesSchema
 	json.Unmarshal(body, &objects)
-	fmt.Println(utils.JsonPrettyPrint(string(body)))
+	if outputJson {
+		fmt.Println(utils.JsonPrettyPrint(string(body)))
+	} else {
+		alternateStyle := pterm.NewStyle(pterm.BgDarkGray)
+		tableData := pterm.TableData{{"IDX", "Session Id", "Status", "Duration", "DateTime", "Manual Run By"}}
+		for idx, obj := range objects.Occurrences {
+			data := []string{strconv.Itoa(idx + 1), obj.WorkflowSessionId, obj.Status, obj.Duration, obj.ScheduledTime, obj.ManualRunByUsername}
+			tableData = append(tableData, data)
+		}
+		pterm.DefaultTable.WithHasHeader().WithBoxed().WithData(tableData).WithAlternateRowStyle(alternateStyle).Render()
+	}
 }
