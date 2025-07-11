@@ -24,6 +24,10 @@ func CLI() int {
 				Name:  "json",
 				Usage: "JSON output to STDOUT",
 			},
+			&cli.BoolFlag{
+				Name:  "csv",
+				Usage: "CSV output to STDOUT",
+			},
 		},
 		Commands: []*cli.Command{
 

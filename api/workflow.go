@@ -25,6 +25,7 @@ func WorkflowHandler(cCtx cli.Context) {
 
 func ListCatalogueWorkflowSchedules(cCtx cli.Context) {
 	outputJson := cCtx.Bool("json")
+	outputCSV := cCtx.Bool("csv")
 	catalogue_id := cCtx.String("id")
 	config := config.ReadConfig()
 	url, err := url.JoinPath(config.BaseUrl, "api/2.0/catalogues", catalogue_id, "workflowSchedules")
@@ -42,6 +43,11 @@ func ListCatalogueWorkflowSchedules(cCtx cli.Context) {
 	fmt.Println(objects.TotalCount)
 	if outputJson {
 		fmt.Println(utils.JsonPrettyPrint(string(body)))
+	} else if outputCSV {
+		fmt.Printf("IDX,Id,Name,Timeout,SeriesName\n")
+		for idx, obj := range objects.WorkflowSchedules {
+			fmt.Printf("%d,%s,%s,%d,%s\n", idx+1, obj.Id, obj.Name, obj.JobTimeoutMinutes, obj.WorkflowInfo.SeriesName)
+		}
 	} else {
 		alternateStyle := pterm.NewStyle(pterm.BgDarkGray)
 		tableData := pterm.TableData{{"Schedule Id", "Name", "Timeout", "Object Name"}}
@@ -55,6 +61,7 @@ func ListCatalogueWorkflowSchedules(cCtx cli.Context) {
 
 func ListWorkflowOccurenceschedules(cCtx cli.Context) {
 	outputJson := cCtx.Bool("json")
+	outputCSV := cCtx.Bool("csv")
 	catalogue_id := cCtx.String("id")
 	schedule_id := cCtx.String("schedule-id")
 	config := config.ReadConfig()
@@ -80,6 +87,11 @@ func ListWorkflowOccurenceschedules(cCtx cli.Context) {
 	json.Unmarshal(body, &objects)
 	if outputJson {
 		fmt.Println(utils.JsonPrettyPrint(string(body)))
+	} else if outputCSV {
+		fmt.Printf("IDX,SessionId,Status,Duration,DateTime,ManualRunBy\n")
+		for idx, obj := range objects.Occurrences {
+			fmt.Printf("%d,%s,%s,%s,%s,%s\n", idx+1, obj.WorkflowSessionId, obj.Status, obj.Duration, obj.ScheduledTime, obj.ManualRunByUsername)
+		}
 	} else {
 		alternateStyle := pterm.NewStyle(pterm.BgDarkGray)
 		tableData := pterm.TableData{{"IDX", "Session Id", "Status", "Duration", "DateTime", "Manual Run By"}}
